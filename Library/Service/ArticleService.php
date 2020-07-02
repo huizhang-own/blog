@@ -1,9 +1,11 @@
 <?php
-namespace Library\Model;
+namespace Library\Service;
 
 use EasySwoole\Component\Singleton;
 use Library\Comm\IniConfig;
 use Parsedown;
+use Library\Model\ArticleInfoModel;
+use Library\Model\MenusModel;
 
 class ArticleService
 {

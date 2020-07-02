@@ -4,7 +4,7 @@ namespace App\HttpController;
 use EasySwoole\Http\AbstractInterface\Controller;
 use EasySwoole\Template\Render;
 use Library\Comm\IniConfig;
-use Library\Model\ArticleService;
+use Library\Service\ArticleService;
 
 class Article extends Controller
 {
