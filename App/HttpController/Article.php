@@ -22,6 +22,9 @@ class Article extends Controller
             'menus' => $menus,
             'article_list' => $articleList,
             'menu_name' => '',
+            'total' => 0,
+            'page' => 1,
+            'page_size' => 10,
             'view_config' => IniConfig::getInstance()->getConf('blog', 'view')
         ]));
     }

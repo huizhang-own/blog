@@ -24,7 +24,8 @@ class DetectDocChange extends AbstractCronTask
 
     function run(int $taskId, int $workerIndex)
     {
-        $trees = File::getInstance()->trees('/Users/yuzhao3/sites/blog/Doc');
+
+        $trees = File::getInstance()->trees(EASYSWOOLE_ROOT.'/Doc');
 
         [$menus, $articlesInfo] = $this->getMenusAndArticlesInfo($trees);
 
@@ -91,7 +92,7 @@ class DetectDocChange extends AbstractCronTask
         $menusModel = MenusModel::create();
         $menusDb = $menusModel->all();
         if (empty($menusDb)) {
-            return false;
+            $menusDb = [];
         }
 
         $menuDbArr = [];
@@ -108,8 +109,7 @@ class DetectDocChange extends AbstractCronTask
             if (!in_array($menu, $intersect, false)) {
                 $menusModel->data([
                     'menu_name' => $menu
-                ]);
-                $menusModel->save();
+                ])->save();
             }
         }
 
