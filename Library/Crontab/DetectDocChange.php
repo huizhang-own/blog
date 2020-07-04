@@ -3,9 +3,11 @@
 namespace Library\Crontab;
 
 use EasySwoole\EasySwoole\Crontab\AbstractCronTask;
+use EasySwoole\Mysqli\QueryBuilder;
 use EasySwoole\Utility\SnowFlake;
 use Library\Comm\File;
 use Library\Comm\IniConfig;
+use Library\Comm\StringTool;
 use Library\Model\ArticleInfoModel;
 use Library\Model\MenusModel;
 
@@ -21,6 +23,12 @@ class DetectDocChange extends AbstractCronTask
     {
         return  'DetectDocChange';
     }
+
+    private $specialChars = [
+        '>' => '',
+        '#' => '',
+        '`' => ''
+    ];
 
     function run(int $taskId, int $workerIndex)
     {
@@ -52,21 +60,21 @@ class DetectDocChange extends AbstractCronTask
         foreach ($articlesInfo as $item)
         {
             if (in_array($item['uuid'], $intersect, false)) {
-                ArticleInfoModel::create()->update([
+                $articleInfo = ArticleInfoModel::create()->get(['uuid' => $item['uuid']]);
+                $articleInfo->update([
                     'title' => $item['title']??'',
                     'description' => $item['description']??'',
-                    'author' => $item['author']??'',
-                    'cover' => $item['cover']??'cover.png',
+                    'cover' => $item['cover']??'/Images/cover.png',
                     'utime' => date('Y-m-d H:i:s'),
+                    'uuid' => $item['uuid'],
                     'menu_name' => $item['menu_name'],
-                    'file_name' => $item['file_name'],
-                ], ['uuid' =>  $item['uuid']]);
+                    'file_name' => $item['file_name']
+                ]);
             } else {
                 ArticleInfoModel::create()->data([
                     'title' => $item['title']??'',
-                    'description' => $item['description']??'',
-                    'author' => $item['author']??'',
-                    'cover' => $item['cover']??'cover.png',
+                    'description' => '',
+                    'cover' => $item['cover']??'/Images/cover.png',
                     'utime' => date('Y-m-d H:i:s'),
                     'uuid' => $item['uuid'],
                     'menu_name' => $item['menu_name'],
@@ -140,23 +148,55 @@ class DetectDocChange extends AbstractCronTask
         if ($ext === 'md')
         {
             $fileResource = fopen($file, 'a+');
+            $waitUpArticleInfo = [
+                'title' => false,
+                'description' => false,
+                'cover' => false
+            ];
+            $description = '';
             while (!feof($fileResource))
             {
+                if ($waitUpArticleInfo['title'] && $waitUpArticleInfo['description'] && $waitUpArticleInfo['cover'])
+                {
+                    break;
+                }
+
                 $line = trim(fgets($fileResource));
                 if (empty($line)) {
                     continue;
                 }
-                $lineArr = explode(':', $line);
 
-                if (count($lineArr)>1 && in_array($lineArr[0], ['title', 'description', 'cover', 'author'], false))
+                $type = $line[0];
+                if ($type === '#' && !$waitUpArticleInfo['title'])
                 {
-                    $content = substr($line, strlen($lineArr[0])+1);
-                    if ($lineArr[0] === 'description')
+                    for ($i=0; $i<10; $i++)
                     {
-                        $content = mb_substr($content, 0, 150, 'utf-8');
+                        $char = $line[$i];
+                        if ($char !== '#')
+                        {
+                            $title = substr($line, $i+1);
+                            break;
+                        }
                     }
-                    $articleInfo[$lineArr[0]] = trim($content);
+                    $articleInfo['title'] = $title;
+                    $waitUpArticleInfo['title'] = true;
+                } elseif ($type === '!' && !$waitUpArticleInfo['cover']) {
+                    $articleInfo['cover'] = StringTool::getInstance()->strBetween($line, '(', ')');
+                    $waitUpArticleInfo['cover'] = true;
                 }
+
+                $line = strtr($line, $this->specialChars);
+
+                if (strlen($description) <= 200 && !$waitUpArticleInfo['description'])
+                {
+                    $description .= substr($line, 0, 200 - strlen($description));
+                    if (strlen($description) >= 200)
+                    {
+                        $waitUpArticleInfo['description'] = true;
+                        $articleInfo['description'] = $description;
+                    }
+                }
+
                 $articleInfo['uuid'] = md5($articleInfo['file_name']);
             }
             fclose($fileResource);

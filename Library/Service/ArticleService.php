@@ -18,7 +18,6 @@ class ArticleService
         foreach ($res as $item)
         {
             $item = $item->toArray();
-            $item['cover'] = '/Images/'.$item['cover'];
             $articleList[] = $item;
         }
 
@@ -52,7 +51,6 @@ class ArticleService
         foreach ($res as $item)
         {
             $item = $item->toArray();
-            $item['cover'] = '/Images/'.$item['cover'];
             $articleList[] = $item;
         }
 
@@ -66,27 +64,9 @@ class ArticleService
 
         $filePath = EASYSWOOLE_ROOT.'/Doc/' . $articleInfo['menu_name'] . '/' . $articleInfo['file_name'];
 
-        $fileResource = fopen($filePath, 'a+');
-        $articleContent = '';
-        $flag = false;
-        while (!feof($fileResource))
-        {
+        $content = file_get_contents($filePath);
 
-            $line = fgets($fileResource);
-            $lineTrim = trim($line);
-            if ($flag)
-            {
-                $articleContent .= $line;
-            }
-
-            if ($lineTrim === IniConfig::getInstance()->getConf('blog', 'markdown.separator'))
-            {
-                $flag = true;
-            }
-
-        }
-
-        return Parsedown::instance()->text($articleContent);
+        return Parsedown::instance()->text($content);
     }
 
 }
