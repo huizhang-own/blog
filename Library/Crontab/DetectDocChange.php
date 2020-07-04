@@ -83,17 +83,17 @@ class DetectDocChange extends AbstractCronTask
             }
         }
 
-        foreach ($articleInfoDbUuid as $uuid)
-        {
-            if (
-                !empty($articlesInfoDb) &&
-                !in_array($uuid, $intersect, false)
-            ) {
-                ArticleInfoModel::create()->destroy([
-                    'uuid' => $uuid
-                ]);
-            }
-        }
+//        foreach ($articleInfoDbUuid as $uuid)
+//        {
+//            if (
+//                !empty($articlesInfoDb) &&
+//                !in_array($uuid, $intersect, false)
+//            ) {
+//                ArticleInfoModel::create()->destroy([
+//                    'uuid' => $uuid
+//                ]);
+//            }
+//        }
 
         return true;
     }
@@ -124,17 +124,17 @@ class DetectDocChange extends AbstractCronTask
             }
         }
 
-        foreach ($menuDbArr as $menuDb)
-        {
-            if (
-                !empty($menusDb) &&
-                !in_array($menuDb, $intersect, false)
-            ) {
-                $menusModel->destroy([
-                    'menu_name' => $menuDb
-                ]);
-            }
-        }
+//        foreach ($menuDbArr as $menuDb)
+//        {
+//            if (
+//                !empty($menusDb) &&
+//                !in_array($menuDb, $intersect, false)
+//            ) {
+//                $menusModel->destroy([
+//                    'menu_name' => $menuDb
+//                ]);
+//            }
+//        }
 
         return true;
     }
