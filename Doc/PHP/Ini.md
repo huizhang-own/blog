@@ -1,4 +1,3 @@
-uuid:356113557370175488
 title:EasySwoole 使用*.ini格式的配置文件
 description:本文章带领大家学习如何在EasySwoole使用ini格式的配置文件。
 author:huizhang

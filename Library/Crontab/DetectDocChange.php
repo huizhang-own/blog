@@ -148,7 +148,7 @@ class DetectDocChange extends AbstractCronTask
                 }
                 $lineArr = explode(':', $line);
 
-                if (count($lineArr)>1 && in_array($lineArr[0], ['uuid', 'title', 'description', 'cover', 'author'], false))
+                if (count($lineArr)>1 && in_array($lineArr[0], ['title', 'description', 'cover', 'author'], false))
                 {
                     $content = substr($line, strlen($lineArr[0])+1);
                     if ($lineArr[0] === 'description')
@@ -157,16 +157,7 @@ class DetectDocChange extends AbstractCronTask
                     }
                     $articleInfo[$lineArr[0]] = trim($content);
                 }
-
-                if ($line === IniConfig::getInstance()->getConf('blog', 'markdown.separator')) {
-                    if (!isset($articleInfo['uuid'])) {
-                        $articleInfo['uuid'] = SnowFlake::make();
-                        rewind($fileResource);
-                        $articleContent = file_get_contents($file);
-                        file_put_contents($file, 'uuid:'.$articleInfo['uuid'].PHP_EOL.$articleContent);
-                    }
-                    break;
-                }
+                $articleInfo['uuid'] = md5($articleInfo['file_name']);
             }
             fclose($fileResource);
         }

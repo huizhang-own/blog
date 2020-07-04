@@ -3,42 +3,15 @@
 <link rel='stylesheet' href='/Css/highlight.css'>
 <link rel='stylesheet' href='/Css/markdown.css'>
 <link rel='stylesheet' href='/Css/document.css'>
-<style>
-	.markdown-body img
-	{
-		max-width: 80%;
-	}
-</style>
 {include file="Blog/menus.html"}
 <div style="overflow: hidden;">
-<div style='display:inline-block;float:left;width: 60%;margin-left:20%;padding-top: 90px;min-height: 1000px;'>
+<div class="markdown-body" style='display:inline-block;float:left;width: 60%;margin-left:20%;padding-top: 90px;min-height: 1000px;'>
 	{$article}
 </div>
 </div>
 {include file="Blog/bottom.html"}
 <script src='/Js/highlight.min.js'></script>
 <script>
-    {literal}
-
-    $(function () {
-        $('#button').click(function () {
-            const data = {phone:$('#phone').val()};
-            console.log(data);
-            $.ajax({
-                type : "post",    //请求类型
-                url : "/fuck",//请求的 URL地址
-                dataType : "json",//返回的数据类型
-	            data: data,
-                success: function (data) {
-                    console.log(data);  //在控制台打印服务器端返回的数据
-                },
-                error:function (data) {
-                }
-            });
-        });
-    });
-    {/literal}
-
     hljs.initHighlightingOnLoad();
     layui.use(['element', 'form', 'laypage'], function () {
         var element = layui.element;

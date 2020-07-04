@@ -109,12 +109,12 @@ code {
 }
 
 .markdown-body code {
-    color: #666555;
+    color: #cabaa0;
 }
 
 
 /** markdown preview plus 对于代码块的处理有些问题, 所以使用统一的颜色 */
-/*code .keyword {
+code .keyword {
   color: #8959a8;
 }
 
@@ -124,7 +124,7 @@ code .number {
 
 code .comment {
   color: #998
-}*/
+}
 
 .markdown-body aside {
     display: block;
