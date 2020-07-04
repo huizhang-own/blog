@@ -73,7 +73,7 @@ class DetectDocChange extends AbstractCronTask
             } else {
                 ArticleInfoModel::create()->data([
                     'title' => $item['title']??'',
-                    'description' => '',
+                    'description' => $item['description']??'',
                     'cover' => $item['cover']??'/Images/cover.png',
                     'utime' => date('Y-m-d H:i:s'),
                     'uuid' => $item['uuid'],
