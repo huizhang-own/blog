@@ -59,21 +59,23 @@ class DetectDocChange extends AbstractCronTask
 
         foreach ($articlesInfo as $item)
         {
+            var_dump($item);
             if (in_array($item['uuid'], $intersect, false)) {
                 $articleInfo = ArticleInfoModel::create()->get(['uuid' => $item['uuid']]);
                 $articleInfo->update([
                     'title' => $item['title']??'',
-//                    'description' => $item['description']??'',
+                    'introduction' => $item['introduction']??'',
                     'cover' => $item['cover']??'/Images/cover.png',
                     'utime' => date('Y-m-d H:i:s'),
                     'uuid' => $item['uuid'],
                     'menu_name' => $item['menu_name'],
                     'file_name' => $item['file_name']
                 ]);
+
             } else {
                 ArticleInfoModel::create()->data([
                     'title' => $item['title']??'',
-                    'description' => $item['description']??'',
+                    'introduction' => $item['introduction']??'',
                     'cover' => $item['cover']??'/Images/cover.png',
                     'utime' => date('Y-m-d H:i:s'),
                     'uuid' => $item['uuid'],
@@ -82,6 +84,7 @@ class DetectDocChange extends AbstractCronTask
                 ], false)->save();
             }
         }
+
 
 //        foreach ($articleInfoDbUuid as $uuid)
 //        {
@@ -121,6 +124,7 @@ class DetectDocChange extends AbstractCronTask
                 $menusModel->data([
                     'menu_name' => $menu
                 ])->save();
+
             }
         }
 
@@ -150,13 +154,13 @@ class DetectDocChange extends AbstractCronTask
             $fileResource = fopen($file, 'a+');
             $waitUpArticleInfo = [
                 'title' => false,
-                'description' => false,
+                'introduction' => false,
                 'cover' => false
             ];
             $description = '';
             while (!feof($fileResource))
             {
-                if ($waitUpArticleInfo['title'] && $waitUpArticleInfo['description'] && $waitUpArticleInfo['cover'])
+                if ($waitUpArticleInfo['title'] && $waitUpArticleInfo['introduction'] && $waitUpArticleInfo['cover'])
                 {
                     break;
                 }
@@ -169,7 +173,7 @@ class DetectDocChange extends AbstractCronTask
                 $type = $line[0];
                 if ($type === '#' && !$waitUpArticleInfo['title'])
                 {
-                    $articleInfo['title'] = substr($line, 1);
+                    $articleInfo['title'] = mb_substr($line, 1);
                     $waitUpArticleInfo['title'] = true;
                 } elseif ($type === '!' && !$waitUpArticleInfo['cover']) {
                     $articleInfo['cover'] = StringTool::getInstance()->strBetween($line, '(', ')');
@@ -178,13 +182,13 @@ class DetectDocChange extends AbstractCronTask
 
                 $line = strtr($line, $this->specialChars);
 
-                if (strlen($description) <= 200 && !$waitUpArticleInfo['description'])
+                if (strlen($description) <= 300 && !$waitUpArticleInfo['introduction'])
                 {
-                    $description .= substr($line, 0, 200 - strlen($description));
-                    if (strlen($description) >= 200)
+                    $description .= mb_substr($line, 0, 300 - mb_strlen($description));
+                    if (strlen($description) >= 300)
                     {
-                        $waitUpArticleInfo['description'] = true;
-                        $articleInfo['description'] = $description;
+                        $waitUpArticleInfo['introduction'] = true;
+                        $articleInfo['introduction'] = $description;
                     }
                 }
 

@@ -10,7 +10,7 @@
 ### 2. 先看CommandRunner类的run方法
 
 `核心代码`
-```
+```php
 function run(array $args):?string
     {
         ·
@@ -54,7 +54,8 @@ function run(array $args):?string
 
 
 `核心代码`
-```
+
+```php
 function initialize()
 {
         //检查全局文件是否存在.
@@ -85,7 +86,8 @@ function initialize()
 }
 ```
 `接口是否实现`
-```
+
+```php
 //检查全局文件是否存在.
 $file = EASYSWOOLE_ROOT . '/EasySwooleEvent.php';
 if(file_exists($file)){
@@ -105,7 +107,8 @@ if(file_exists($file)){
 }
 ```
 `loadEnv方法`
-```
+
+```php
 public function loadEnv()
     {
         //加载之前，先清空原来的
@@ -118,7 +121,8 @@ public function loadEnv()
     }
 ```
 `Config的loadEnv方法`
-```
+
+```php
 /**
 * $this->conf = new SplArray(); 这里有时间会单独剖析一下一峰大佬写的
 * SplArray工具类，这个类继承了spl扩展的ArrayObject，看下上面的知识点应该就能看懂。
@@ -138,8 +142,10 @@ public function loadEnv(string $file)
 
 
 `$this->sysDirectoryInit();`
+
 > 我再注释当中解释了过程
-```
+
+```php
 private function sysDirectoryInit():void
     {
         //--------------------------------1.创建temp目录-------------------------------
@@ -180,7 +186,8 @@ private function sysDirectoryInit():void
 ```
 `$this->registerErrorHandler();`
 > 具体的你们追下去看吧，写的真的不错，尤其是set_error_handler和register_shutdown_function
-```
+
+```php
 private function registerErrorHandler()
     {
         // 显示错误
@@ -238,7 +245,8 @@ private function registerErrorHandler()
 > 这里还不知道要干啥，后面用到的时候再说。
 
 `核心代码`
-```
+
+```php
 public function exec(array $args): ?string
     {
         // TODO: Implement exec() method.
@@ -261,7 +269,8 @@ public function exec(array $args): ?string
 
 `easySwooleLog 方法`
 > 虽然没啥逻辑，就当宣传一下easyswoole吧
-```
+
+```php
 public static function easySwooleLog()
     {
         return <<<LOGO

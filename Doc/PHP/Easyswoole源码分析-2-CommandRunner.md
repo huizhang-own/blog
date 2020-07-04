@@ -12,7 +12,7 @@
 
 `核心代码`
 
-```
+```php
 trait Singleton
 {
     private static $instance;
@@ -30,7 +30,7 @@ trait Singleton
 
 ### 4.CommandContainer 类
 `核心代码`
-```
+```php
 class CommandContainer
 {
     // 每个类都引入了此Trait，目的是为了获取当前对象
@@ -75,7 +75,7 @@ class CommandContainer
 
 ### 5.Core (核心)类
 `核心代码`
-```
+```php
 class Core
 {
     use Singleton;
@@ -136,7 +136,7 @@ class Core
 ### 6.CommandRunner类
 > 了解了以上信息后，接下来介绍CommandRunner
 `核心代码`
-```
+```php
 class CommandRunner
 {
     use Singleton;

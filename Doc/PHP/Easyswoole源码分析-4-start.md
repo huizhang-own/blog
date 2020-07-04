@@ -152,7 +152,8 @@ function createServer()
     }
 ```
 `注册默认的回调事件`
-```
+
+```php
 private function registerDefaultCallBack(\swoole_server $server,int $serverType)
     {
         //---------------------------------1.非swoole_server------------------------------
@@ -236,7 +237,7 @@ private function registerDefaultCallBack(\swoole_server $server,int $serverType)
 ### 6. 启动
 `        Core::getInstance()->start();
 `
-```
+```php
 function start()
     {
         //给主进程也命名
@@ -251,7 +252,7 @@ function start()
 
 `        ServerManager::getInstance()->start();
 `
-```
+```php
 function start()
     {
         // 将EventHelper::registerWithAdd注册的回调绑定到服务,启动的时候只注册了workerStart
