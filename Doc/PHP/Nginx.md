@@ -35,6 +35,7 @@ description: 近几天有幸接触到Nginx反向代理、负载均衡相关知�
 ###### nginx.conf
 
 >  当有新版本发布的时候EasySwoole自定义进程会将nginx.conf 的端口改为最新服务
+
 ```text
 
 worker_processes  1;
@@ -71,6 +72,7 @@ http {
 ```
 
 ###### es-release.conf
+
 ```text
 server {
         listen       80;
@@ -229,6 +231,7 @@ class EasySwooleEvent implements Event
 ![image.png](https://upload-images.jianshu.io/upload_images/10306662-5d3d9e2107623129.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 ###### 查看Nginx配置的端口
+
 ```text
 ➜  nginx cat nginx.conf | grep 950
            server    127.0.0.1:9501;
