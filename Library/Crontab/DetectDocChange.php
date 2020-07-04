@@ -169,16 +169,7 @@ class DetectDocChange extends AbstractCronTask
                 $type = $line[0];
                 if ($type === '#' && !$waitUpArticleInfo['title'])
                 {
-                    for ($i=0; $i<10; $i++)
-                    {
-                        $char = $line[$i];
-                        if ($char !== '#')
-                        {
-                            $title = substr($line, $i+1);
-                            break;
-                        }
-                    }
-                    $articleInfo['title'] = $title;
+                    $articleInfo['title'] = substr($line, 1);
                     $waitUpArticleInfo['title'] = true;
                 } elseif ($type === '!' && !$waitUpArticleInfo['cover']) {
                     $articleInfo['cover'] = StringTool::getInstance()->strBetween($line, '(', ')');
