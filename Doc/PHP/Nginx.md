@@ -1,3 +1,4 @@
+uuid:356132182005121024
 title:EasySwoole+git+Nginx 实现服务的不中断部署
 author:huizhang
 description: 近几天有幸接触到Nginx反向代理、负载均衡相关知识，为了加深印象，感觉还是有必要自己去踩一遍坑。
