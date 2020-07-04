@@ -19,8 +19,6 @@ author:huizhang
 只需要关注标红的两个地方，Config/Ini目录是用来存放ini文件的，
 Ini是我写的读取ini配置文件的包。
 
-![](../../.vuepress/public/image/ini-dir.png)
-
 ### Ini包源码
 非常简单
 ````php
@@ -141,11 +139,3 @@ Ini::getInstance()->getConf('database', 'order');
 // 获取database.ini中的一块配置的某一项
 Ini::getInstance()->getConf('database', 'order.host');
 ````
-
-### EasySwoole
-
-官网：http://www.easyswoole.com
-
-交流群：932625047
-
-![](../../.vuepress/public/image/website.png)
