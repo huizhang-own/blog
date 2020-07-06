@@ -184,16 +184,22 @@ class DetectDocChange extends AbstractCronTask
 
                 if (strlen($description) <= 300 && !$waitUpArticleInfo['introduction'])
                 {
-                    $description .= mb_substr($line, 0, 300 - mb_strlen($description));
+                    preg_match_all('/[\x{4e00}-\x{9fff}]+/u', $line, $chinese);
+                    $chinese = implode('', $chinese);
+
+                    $description .= mb_substr($chinese, 0, 300 - mb_strlen($description));
+                    if (empty($description))
+                    {
+                        continue;
+                    }
                     if (strlen($description) >= 300)
                     {
                         $waitUpArticleInfo['introduction'] = true;
                         $articleInfo['introduction'] = $description;
                     }
                 }
-
-                $articleInfo['uuid'] = md5($articleInfo['file_name']);
             }
+            $articleInfo['uuid'] = md5($articleInfo['file_name']);
             fclose($fileResource);
         }
 
