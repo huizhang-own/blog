@@ -3,10 +3,7 @@
 namespace Library\Crontab;
 
 use EasySwoole\EasySwoole\Crontab\AbstractCronTask;
-use EasySwoole\Mysqli\QueryBuilder;
-use EasySwoole\Utility\SnowFlake;
 use Library\Comm\File;
-use Library\Comm\IniConfig;
 use Library\Comm\StringTool;
 use Library\Model\ArticleInfoModel;
 use Library\Model\MenusModel;
@@ -59,7 +56,6 @@ class DetectDocChange extends AbstractCronTask
 
         foreach ($articlesInfo as $item)
         {
-            var_dump($item);
             if (in_array($item['uuid'], $intersect, false)) {
                 $articleInfo = ArticleInfoModel::create()->get(['uuid' => $item['uuid']]);
                 $articleInfo->update([
@@ -185,8 +181,8 @@ class DetectDocChange extends AbstractCronTask
                 if (strlen($description) <= 300 && !$waitUpArticleInfo['introduction'])
                 {
                     preg_match_all('/[\x{4e00}-\x{9fff}]+/u', $line, $chinese);
+                    $chinese = $chinese[0];
                     $chinese = implode('', $chinese);
-
                     $description .= mb_substr($chinese, 0, 300 - mb_strlen($description));
                     if (empty($description))
                     {
