@@ -88,7 +88,8 @@ class ArticleService
 
         if (empty($head))
         {
-            $headInfo = WordsMatchClient::getInstance()->detect($content);
+//            $headInfo = WordsMatchClient::getInstance()->detect($content);
+            $headInfo = [];
             $keywords = array_column($headInfo, 'word');
             $headInfo['title'] = $articleInfo['title'];
             $headInfo['meta'][] = [
