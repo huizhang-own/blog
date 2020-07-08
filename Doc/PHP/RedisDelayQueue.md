@@ -1,196 +1,345 @@
-# EasySwoole 基于Redis组件实现延迟队列
 
-## 介绍
+#Docker+TP5+RabbitMQ+入消息队列+自动消费队列
 
-在用户要支付订单的时候，如果超过30分钟未支付，会把订单关掉。当然我们可以做一个定时任务，每个一段时间来扫描未支付的订单，如果该订单超过支付时间就关闭，但是在数据量小的时候并没有什么大的问题，但是数据量一大轮训数据库的方式就会变得特别耗资源。当面对千万级、上亿级数据量时，本身写入的IO就比较高，导致长时间查询或者根本就查不出来，更别说分库分表以后了。
+> 注意：仅仅记录学习，不能直接运行，有任何问题请留言。
+### 1. 安装RabbitMQ
+`拉取镜像`
+```
+docker pull rabbitmq:3.7.7-management
+```
+```
+docker run -d --name rabbitmq3.7.7 -p 5672:5672 -p 15672:15672 -v `pwd`/data:/var/lib/rabbitmq --hostname myRabbit -e RABBITMQ_DEFAULT_VHOST=my_vhost  -e RABBITMQ_DEFAULT_USER=admin -e RABBITMQ_DEFAULT_PASS=admin df80af9ca0c9
+```
+`http://ip:15672`
+![image.png](https://upload-images.jianshu.io/upload_images/10306662-51f9245a643a679e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-使用延迟队列解决的痛点无非是
+### 2. composer安装[php-amqplib](https://segmentfault.com/a/1190000012308675)
+```
+composer require php-amqplib/php-amqplib
+```
 
-1. 实现了数据延迟
-2. 数据摊开(仔细去理解)
-
-## 知识点
-
-1. [redis有序集合](https://www.runoob.com/redis/redis-sorted-sets.html)
-2. [EasySwoole Redis协程客户端](http://www.easyswoole.com/Cn/Components/Redis/introduction.html)
-
-## 案例
-
-生成订单id ---> 扔到延迟队列 ---> 延迟队列消费进程不停获取30分钟前的订单满足条件的订单 ---> 处理订单
-
-## 直接上代码
-
-#### EasySwooleEvent.php 注册redis连接池、注册延迟队列消费进程
-
-````php
+### 3.Tp5 实现
+`再次封装php-amqplib`
+```
 <?php
-namespace EasySwoole\EasySwoole;
+/**
+ * User: yuzhao
+ * Description: RabbitMq 工具
+ */
+namespace app\common\tool;
+use app\common\config\SelfConfig;
+use PhpAmqpLib\Connection\AMQPStreamConnection;
+use PhpAmqpLib\Message\AMQPMessage;
 
-use App\Process\Consumer;
-use EasySwoole\EasySwoole\Swoole\EventRegister;
-use EasySwoole\EasySwoole\AbstractInterface\Event;
-use EasySwoole\Http\Request;
-use EasySwoole\Http\Response;
-use EasySwoole\Pool\Manager;
-use EasySwoole\Redis\Config\RedisConfig;
-use App\RedisPool\RedisPool;
-use EasySwoole\Pool\Config;
-class EasySwooleEvent implements Event
-{
+class RabbitMQTool {
 
-    public static function initialize()
+    /**
+     * User: yuzhao
+     * @var
+     * Description:
+     */
+    private $channel;
+
+    private $mqConf;
+
+    /**
+     * RabbitMQTool constructor.
+     * @param $mqName
+     */
+    public function __construct($mqName)
     {
-        // TODO: Implement initialize() method.
-        date_default_timezone_set('Asia/Shanghai');
+        // 获取rabbitmq所有配置
+        $rabbitMqConf = SelfConfig::getConfig('Source.rabbit_mq');
+        if (!isset($rabbitMqConf['rabbit_mq_queue'])) {
+            die('没有定义Source.rabbit_mq');
+        }
+        //建立生产者与mq之间的连接
+        $this->conn = new AMQPStreamConnection(
+            $rabbitMqConf['host'], $rabbitMqConf['port'], $rabbitMqConf['user'], $rabbitMqConf['pwd'], $rabbitMqConf['vhost']
+        );
+        $channal = $this->conn->channel();
+        if (!isset($rabbitMqConf['rabbit_mq_queue'][$mqName])) {
+            die('没有定义'.$mqName);
+        }
+        // 获取具体mq信息
+        $mqConf = $rabbitMqConf['rabbit_mq_queue'][$mqName];
+        $this->mqConf = $mqConf;
+        // 声明初始化交换机
+        $channal->exchange_declare($mqConf['exchange_name'], 'direct', false, true, false);
+        // 声明初始化一条队列
+        $channal->queue_declare($mqConf['queue_name'], false, true, false, false);
+        // 交换机队列绑定
+        $channal->queue_bind($mqConf['queue_name'], $mqConf['exchange_name']);
+        $this->channel = $channal;
     }
 
-    public static function mainServerCreate(EventRegister $register)
-    {
-
-        //TODO:: 注册redis连接池
-        $config = new Config();
-        $redisConfig1 = new RedisConfig([
-            'host'      => '127.0.0.1',
-            'port'      => '6379'
-        ]);
-
-        // 这里的redis连接池看文档配吧
-        Manager::getInstance()->register(new RedisPool($config,$redisConfig1),'redis');
-
-        //TODO:: 延迟队列消费进程
-        $processConfig= new \EasySwoole\Component\Process\Config();
-        $processConfig->setProcessName('testProcess');
-
-        \EasySwoole\Component\Process\Manager::getInstance()->addProcess(new Consumer($processConfig));
+    /**
+     * User: yuzhao
+     * @param $mqName
+     * @return RabbitMQTool
+     * Description: 返回当前实例
+     */
+    public static function instance($mqName) {
+        return new RabbitMQTool($mqName);
     }
 
-    public static function onRequest(Request $request, Response $response): bool
-    {
-        // TODO: Implement onRequest() method.
-
+    /**
+     * User: yuzhao
+     * @param $data
+     * Description: 写mq
+     * @return bool
+     */
+    public function wMq($data) {
+        try {
+            $data = json_encode($data, JSON_UNESCAPED_UNICODE);
+            $msg = new AMQPMessage($data, ['content_type' => 'text/plain', 'delivery_mode' => 2]);
+            $this->channel->basic_publish($msg, $this->mqConf['exchange_name']);
+        } catch (\Throwable $e) {
+            $this->closeConn();
+            return false;
+        }
+        $this->closeConn();
         return true;
     }
 
-    public static function afterRequest(Request $request, Response $response): void
-    {
-        // TODO: Implement afterAction() method.
+    /**
+     * User: yuzhao
+     * @param int $num
+     * @return array
+     * Description:
+     * @throws \ErrorException
+     */
+    public function rMq($num=1) {
+        $rData = [];
+        $callBack = function ($msg) use (&$rData){
+            $rData[] = json_decode($msg->body, true);
+        };
+        for ($i=0;$i<$num;$i++) {
+            $this->channel->basic_consume($this->mqConf['queue_name'], '', false, true, false, false, $callBack);
+        }
+        $this->channel->wait();
+        $this->closeConn();
+        return $rData;
+    }
+
+    /**
+     * User: yuzhao
+     * Description: 关闭连接
+     */
+    public function closeConn() {
+        $this->channel->close();
+        $this->conn->close();
+    }
+
+}
+```
+`入队列`
+
+```
+<?php
+/**
+ * User: yuzhao
+ * Description:
+ */
+namespace app\test\controller;
+
+use app\common\tool\RabbitMQTool;
+use think\Controller;
+
+class TestController extends Controller {
+    public function test() {
+        RabbitMQTool::instance('test')->wMq(['name'=>'123']);
     }
 }
+```
 
-````
-
-#### 扔到延迟队列
-
-````php
+`启动消费队列`
+```
 <?php
-namespace App\HttpController;
+/**
+ * User: yuzhao
+ * Description: 启动MQ,php xxx/public/index.php /daemon/start_Mq/main 队列别名 进程数 -d(守护进程) | -s (杀死进程)
+ */
 
-use EasySwoole\Http\AbstractInterface\Controller;
-use EasySwoole\Pool\Manager;
+namespace app\daemon\controller;
+use app\common\config\SelfConfig;
+use app\common\tool\RabbitMQTool;
 
-class Index extends Controller
-{
+class StartMqController {
 
-    function index()
+    private $dealPath = null;
+
+    private $childsPid = array();
+
+    /**
+     * StartRabbitMQ constructor.
+     */
+    public function __construct()
     {
-        /** @var $redis \EasySwoole\Redis\Redis*/
-        $orderId = date('YmdHis', time());
-        $redis = Manager::getInstance()->get('redis')->getObj();
-        $res = $redis->zAdd('delay_queue_test1', time(), $orderId);
-        if ($res) {
-            $this->writeJson(200, '订单添加成功:'.$orderId);
+        // 脚本路径
+        $this->dealPath = str_replace('/','\\',"/app/daemon/deal/");
+    }
+
+    /**
+     * User: yuzhao
+     * Description: 返回当前实例
+     */
+    public static function instance() {
+        return new StartMqController();
+    }
+
+    /**
+     * User: yuzhao
+     * Description: 主要处理流程
+     * @throws \ErrorException
+     */
+    public function main() {
+        global $argv;
+        // 扩展参数
+        if (isset($argv[3])) {
+            switch ($argv[3]) {
+                case '-d': // 守护进程启动
+                    $this->daemonStart();
+                break;
+                case '-s': // 杀死进程
+                    $this->killEasyExport($argv[2]);die();
+                break;
+            }
+        }
+        // 判断参数
+        if (count($argv) < 2) {
+            die('缺少参数');
+        }
+        // 获取配置信息
+        $rabbitMqConf = SelfConfig::getConfig('Source.rabbit_mq');
+        if (!isset( $rabbitMqConf['rabbit_mq_queue'][$argv[2]])) {
+            die('没有配置:'.$argv[2]);
+        }
+        // 获取mq配置
+        $mqConf = $rabbitMqConf['rabbit_mq_queue'][$argv[2]];
+        // 实例化处理脚本
+        $dealClass = $this->dealPath.$mqConf['consumer'];
+        $dealObj = new $dealClass;
+        $processNum = 1;
+        if (isset($mqConf['process_num']) || !is_numeric($mqConf['process_num']) || $mqConf['process_num'] < 1 || $mqConf['process_num'] >10 ) {
+            $processNum = $mqConf['process_num'];
+        }
+        if (!isset($mqConf['deal_num']) || !is_numeric($mqConf['deal_num'])) {
+            die('处理条数设置有误');
+        }
+        // fork进程
+        for ($i=0; $i<$processNum; $i++) {
+            $pid = pcntl_fork();
+            if( $pid < 0 ){
+                exit();
+            } else if( 0 == $pid ) {
+                $this->downMqData($dealObj, $argv, $mqConf);
+                exit();
+            } else if( $pid > 0 ) {
+                $this->childsPid[] = $pid;
+            }
+        }
+        while( true ){
+            sleep(1);
         }
     }
 
-}
-````
+    /**
+     * User: yuzhao
+     * @param $dealObj
+     * @param $argv
+     * @param $mqConf
+     * @throws \ErrorException
+     * Description:
+     */
+    private function downMqData($dealObj, $argv, $mqConf) {
+        while (true) {
+            // 下载数据
+            $mqData = RabbitMQTool::instance($argv[2])->rMq($mqConf['deal_num']);
+            $dealObj->deal($mqData);
+            sleep(1);
+        }
+    }
 
-#### 延迟队列消费进程
+    private function killEasyExport($startFile) {
+        exec("ps aux | grep $startFile | grep -v grep | awk '{print $2}'", $info);
+        if (count($info) <= 1) {
+            echo "not run\n";
+        } else {
+            echo "[$startFile] stop success";
+            exec("ps aux | grep $startFile | grep -v grep | awk '{print $2}' |xargs kill -SIGINT", $info);
+        }
+    }
 
-````php
-<?php
-namespace App\Process;
-
-use EasySwoole\Component\Process\AbstractProcess;
-use EasySwoole\Pool\Manager;
-use Swoole\Coroutine;
-
-class Consumer extends AbstractProcess {
-    protected function run($arg)
-    {
-        go(function (){
-            while (true) {
-
-                //TODO:: 拿到redis
-                /** @var $redis \EasySwoole\Redis\Redis*/
-                $redis = Manager::getInstance()->get('redis')->defer();
-
-                //TODO:: 从有序集合中拿到三秒(模拟30分钟)以前的订单
-                $orderIds = $redis->zRangeByScore('delay_queue_test1', 0, time()-3, ['withscores' => TRUE]);
-
-                if (empty($orderIds)) {
-                    Coroutine::sleep(1);
-                    continue;
-                }
-
-                //TODO::拿出后立马删除
-                $redis->zRem('delay_queue_test1', ...$orderIds);
-
-                foreach ($orderIds as $orderId)
-                {
-                    var_dump($orderId);
-
-                    //TODO::判断此订单30分钟后，是否仍未完成，做相应处理
-                }
-            }
-        });
+    /**
+     * User: yuzhao
+     * Description: 守护进程模式启动
+     */
+    private function daemonStart() {
+        // 守护进程需要pcntl扩展支持
+        if (!function_exists('pcntl_fork'))
+        {
+            exit('Daemonize needs pcntl, the pcntl extension was not found');
+        }
+        umask( 0 );
+        $pid = pcntl_fork();
+        if( $pid < 0 ){
+            exit('fork error.');
+        } else if( $pid > 0 ) {
+            exit();
+        }
+        if( !posix_setsid() ){
+            exit('setsid error.');
+        }
+        $pid = pcntl_fork();
+        if( $pid  < 0 ){
+            exit('fork error');
+        } else if( $pid > 0 ) {
+            // 主进程退出
+            exit;
+        }
+        // 子进程继续，实现daemon化
     }
 
 }
-````
 
-## 测试
+```
 
-#### 请求index/index 投递订单到延迟队列
+`自定义配置文件`
+```
+<?php
+/**
+ * User: yuzhao
+ * Description:
+ */
 
-````php
-➜  ~ curl 127.0.0.1:9501/index/index
-{"code":200,"result":"订单添加成功:20200422004046","msg":null}%
-````
+return [
+   
+    'rabbit_mq' => [
+        'host' => ip,
+        'port' => 5672,
+        'user' => 'root',
+        'pwd' => 'xxx',
+        'vhost' => 'my_vhost',
+        'rabbit_mq_queue' => [
+            'test' => [
+                'exchange_name' => 'ex_test', // 交换机名称
+                'queue_name' => 'que_test', // 队列名称
+                'process_num' => 3, // 默认单台机器的进程数量
+                'deal_num' => '50', // 单次处理数量
+                'consumer' => 'DealTest' // 消费地址
+            ]
+        ]
+    ]
+];
+```
 
-#### 等3s看终端是否输出
+### 4. 学习地址
 
-````php
-➜  easyswoole php easyswoole start
-  ______                          _____                              _
- |  ____|                        / ____|                            | |
- | |__      __ _   ___   _   _  | (___   __      __   ___     ___   | |   ___
- |  __|    / _` | / __| | | | |  \___ \  \ \ /\ / /  / _ \   / _ \  | |  / _ \
- | |____  | (_| | \__ \ | |_| |  ____) |  \ V  V /  | (_) | | (_) | | | |  __/
- |______|  \__,_| |___/  \__, | |_____/    \_/\_/    \___/   \___/  |_|  \___|
-                          __/ |
-                         |___/
-main server                   SWOOLE_WEB
-listen address                0.0.0.0
-listen port                   9501
-ip@en0                        192.168.43.57
-worker_num                    8
-reload_async                  true
-max_wait_time                 3
-pid_file                      /Users/xx/sites/easyswoole/Temp/pid.pid
-log_file                      /Users/xx/sites/easyswoole/Log/swoole.log
-user                          xx
-daemonize                     false
-swoole version                4.4.15
-php version                   7.2.18
-easy swoole                   3.3.7
-develop/produce               develop
-temp dir                      /Users/xx/sites/easyswoole/Temp
-log dir                       /Users/xx/sites/easyswoole/Log
+https://www.cnblogs.com/yufeng218/p/9452621.html
+https://blog.csdn.net/demon3182/article/details/77335206
+https://blog.csdn.net/u010472499/article/details/78366614
+https://segmentfault.com/a/1190000012308675
 
-string(14) "20200422004046"
-````
 
-## 总结
 
-这只是一个思路，大家可以根据实际业务做不同调整
