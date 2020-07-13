@@ -33,7 +33,7 @@ class EasySwooleEvent implements Event
         MainServerRegistryService::getInstance()->smarty();
 
         // words-match
-//        MainServerRegistryService::getInstance()->wordsMatch();
+        MainServerRegistryService::getInstance()->wordsMatch();
     }
 
     public static function onRequest(Request $request, Response $response): bool
