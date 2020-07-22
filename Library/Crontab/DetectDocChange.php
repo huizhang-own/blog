@@ -168,17 +168,17 @@ class DetectDocChange extends AbstractCronTask
                     $waitUpArticleInfo['cover'] = true;
                 }
 
-                if (strlen($description) <= 300 && !$waitUpArticleInfo['description'])
+                if (strlen($description) <= 200 && !$waitUpArticleInfo['description'])
                 {
                     preg_match_all('/[\x{4e00}-\x{9fff}]+/u', $line, $chinese);
                     $chinese = $chinese[0];
                     $chinese = implode('', $chinese);
-                    $description .= mb_substr($chinese, 0, 300 - mb_strlen($description));
+                    $description .= mb_substr($chinese, 0, 200 - mb_strlen($description));
                     if (empty($description))
                     {
                         continue;
                     }
-                    if (strlen($description) >= 300)
+                    if (strlen($description) >= 200)
                     {
                         $waitUpArticleInfo['description'] = true;
                         $articleInfo['description'] = $description;
