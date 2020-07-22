@@ -120,19 +120,6 @@ php easyswoole start
 
 > 用---分隔
 
-````text
-
----
-title: easyswoole框架部署-nginx
-meta:
-  - name: description
-    content: easyswoole框架部署-nginx
-  - name: keywords
-    content: easyswoole框架部署-nginx
----
-
-````
-
 ![:](Images/es-blog-seo.png)
 
 #### 利用words-match组件
