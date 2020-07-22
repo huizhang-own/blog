@@ -204,6 +204,10 @@ class DetectDocChange extends AbstractCronTask
                 $menus[] = $menuArr[count($menuArr)-1];
                 foreach ($files as $file)
                 {
+                    if (!is_string($file))
+                    {
+                        continue;
+                    }
                     $articleInfo = $this->articleInfo($file);
                     $articleInfo['menu_name'] = $menuArr[count($menuArr)-1];
                     if (!empty($articleInfo)) {
