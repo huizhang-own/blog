@@ -23,7 +23,7 @@
 ## 3. 安装过程
 
 #### 将代码fock到自己的github仓库
-![:](Images/es-blog-fock.png)
+![:](View/Static/Images/es-blog-fock.png)
 
 #### 将代码拉到服务器or本地
 
@@ -99,21 +99,21 @@ php easyswoole start
 
 #### 整体
 
-![:](/Images/es-blog-home.png)
+![:](/View/Static/Images/es-blog-home.png)
 
 #### 博客详情
 
-![:](Images/es-blog-detail.png)
+![:](View/Static/Images/es-blog-detail.png)
 
 #### 编辑博客
 
-![:](Images/es-blog-write.png)
+![:](View/Static/Images/es-blog-write.png)
 
 ## 5. 如何编辑博客
 
 > 在项目Doc目录下创建目录(目录只支持一级),目录下创建编辑markdown文档，将改动push到github，服务器上的git-pull.sh就会自动拉最新的文档。
 
-![:](Images/es-blog-dir.png)
+![:](View/Static/Images/es-blog-dir.png)
 
 ## 6. 如何使用seo
 
@@ -121,13 +121,13 @@ php easyswoole start
 
 > 用---分隔
 
-![:](Images/es-blog-seo.png)
+![:](View/Static/Images/es-blog-seo.png)
 
 #### 利用words-match组件
 
 > 将写的博客出现频率和自认为重点的词直接放到wordsmatch.txt文件中
 
-![:](Images/es-blog-wm.png)
+![:](View/Static/Images/es-blog-wm.png)
 
 
 ## 7. 总结
