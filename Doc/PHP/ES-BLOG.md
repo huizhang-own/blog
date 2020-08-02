@@ -18,6 +18,7 @@
 4. 博客详情
 5. 访问量
 6. seo(手动seo或者利用easyswoole的words-match组件自动生成seo)
+7. 详情导航
 
 ## 3. 安装过程
 
