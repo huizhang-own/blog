@@ -97,8 +97,7 @@
 			var rightMenu = [];
 			$(".markdown-body").children().each(function(index, element) {
 				var tagName=$(this).get(0).tagName;
-				console.log(tagName.substr(1,1));
-				if (tagName.substr(1,1) === 1)
+				if (tagName.substr(1,1) == 1)
 				{
 					return false;
 				}
