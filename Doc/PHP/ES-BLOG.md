@@ -19,7 +19,7 @@
 5. 访问量
 6. seo(手动seo或者利用easyswoole的words-match组件自动生成seo)
 
-## 2. 安装过程
+## 3. 安装过程
 
 #### 将代码fock到自己的github仓库
 ![:](Images/es-blog-fock.png)
@@ -94,7 +94,7 @@ title='ES-BLOG'
 php easyswoole start
 ````
 
-## 3. 效果
+## 4. 效果
 
 #### 整体
 
@@ -108,13 +108,13 @@ php easyswoole start
 
 ![:](Images/es-blog-write.png)
 
-## 4. 如何编辑博客
+## 5. 如何编辑博客
 
 > 在项目Doc目录下创建目录(目录只支持一级),目录下创建编辑markdown文档，将改动push到github，服务器上的git-pull.sh就会自动拉最新的文档。
 
 ![:](Images/es-blog-dir.png)
 
-## 5. 如何使用seo
+## 6. 如何使用seo
 
 #### 手动
 
@@ -129,6 +129,6 @@ php easyswoole start
 ![:](Images/es-blog-wm.png)
 
 
-## 6. 总结
+## 7. 总结
 
 > 能凑合用了但不完善，欢迎大家提issue和pr
