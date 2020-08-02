@@ -97,7 +97,11 @@
 			var rightMenu = [];
 			$(".markdown-body").children().each(function(index, element) {
 				var tagName=$(this).get(0).tagName;
-				console.log(tagName);
+				console.log(tagName.substr(1,1));
+				if (tagName.substr(1,1) === 1)
+				{
+					return false;
+				}
 				if(tagName.substr(0,1).toUpperCase()=="H"){
 					var contentH=$(this).text();//获取内容
 					var markid="mark-"+tagName+"-"+index.toString();
