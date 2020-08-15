@@ -66,6 +66,7 @@ class Article extends Controller
 
         $base = [
             'menus' => $menus,
+            'current_menu_name' => $this->request()->getRequestParam('menu_name'),
             'view_config' => IniConfig::getInstance()->getConf('blog', 'view')
         ];
 

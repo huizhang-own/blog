@@ -4,7 +4,11 @@
 	</span>
 	<ul class='layui-nav' style='display: inline-block;float: right;' lay-filter='top-menus' id='top-menus'>
 	    {foreach from=$menus item=item}
-			<li style='cursor: pointer;margin-left: 20px;' class='layui-nav-item'>
+			{if $item.menu_name == $current_menu_name}
+				<li style='cursor: pointer;margin-left: 20px;' class='layui-nav-item layui-this'>
+			{else}
+				<li style='cursor: pointer;margin-left: 20px;' class='layui-nav-item'>
+			{/if}
 				<a href="/class?menu_name={$item.menu_name}&page=1&page_size=10">
 	                {$item.menu_name}
 				</a>
