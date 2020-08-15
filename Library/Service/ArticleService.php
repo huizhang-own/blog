@@ -41,7 +41,7 @@ class ArticleService
 
         $articleInfoModel = ArticleInfoModel::create()
             ->where('menu_name', $menuName)
-            ->order('id', 'desc')
+            ->order('pv', 'desc')
             ->limit($pageSize * ($page - 1), $pageSize)
             ->withTotalCount();
         $res = $articleInfoModel->all();
