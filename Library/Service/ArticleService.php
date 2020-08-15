@@ -112,7 +112,7 @@ class ArticleService
         $key = md5($clientIp.$uuid);
         if (empty(Cache::getInstance()->get($key)))
         {
-            Cache::getInstance()->set($key, time(), 60);
+            Cache::getInstance()->set($key, time(), 60*60);
             ArticleInfoModel::create()->update(
                 [
                     'pv' => QueryBuilder::inc()
