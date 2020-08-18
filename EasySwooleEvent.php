@@ -37,6 +37,9 @@ class EasySwooleEvent implements Event
 
         // fast-cache
         MainServerRegistryService::getInstance()->fastCache();
+
+        // 进程
+        MainServerRegistryService::getInstance()->process();
     }
 
     public static function onRequest(Request $request, Response $response): bool

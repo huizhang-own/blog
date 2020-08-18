@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5da02ed16fa29b8a2f1aa8894e5cf430",
+    "content-hash": "8fbcfd94027020f9f39d385c4ebf0c63",
     "packages": [
         {
             "name": "dragonmantank/cron-expression",
@@ -792,6 +792,54 @@
             "time": "2020-05-31T13:57:38+00:00"
         },
         {
+            "name": "easyswoole/smtp",
+            "version": "1.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/easy-swoole/smtp.git",
+                "reference": "b3387ab5b77605a6e25a906617edeabfe83ba870"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/easy-swoole/smtp/zipball/b3387ab5b77605a6e25a906617edeabfe83ba870",
+                "reference": "b3387ab5b77605a6e25a906617edeabfe83ba870",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "easyswoole/spl": "^1.1",
+                "easyswoole/utility": "^1.0",
+                "ext-swoole": "^4.2.6",
+                "php": ">=7.1.0"
+            },
+            "require-dev": {
+                "easyswoole/swoole-ide-helper": "^1.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "EasySwoole\\Smtp\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "RunsTp",
+                    "email": "runstp@163.com"
+                }
+            ],
+            "description": "EasySwoole mailer component",
+            "time": "2020-04-29T03:16:29+00:00"
+        },
+        {
             "name": "easyswoole/socket",
             "version": "1.1.12",
             "source": {
@@ -1326,6 +1374,16 @@
                 "log",
                 "logging",
                 "psr-3"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/Seldaek",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/monolog/monolog",
+                    "type": "tidelift"
+                }
             ],
             "time": "2020-05-22T07:31:27+00:00"
         },
@@ -2258,5 +2316,6 @@
         "ext-mbstring": "*",
         "ext-yaml": "*"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

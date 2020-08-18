@@ -2,6 +2,7 @@
 namespace Library\Service;
 
 use EasySwoole\Component\Process\Exception;
+use EasySwoole\Component\Process\Manager;
 use EasySwoole\Component\Singleton;
 use EasySwoole\EasySwoole\Crontab\Crontab;
 use EasySwoole\EasySwoole\ServerManager;
@@ -18,6 +19,7 @@ use Library\Comm\IniConfig;
 use Library\Comm\Smarty;
 use Library\Crontab\DetectDocChange;
 use EasySwoole\FastCache\Cache;
+use Library\Process\EmailProcess;
 
 class MainServerRegistryService
 {
@@ -138,5 +140,12 @@ class MainServerRegistryService
         Cache::getInstance()
             ->setTempDir(EASYSWOOLE_TEMP_DIR)
             ->attachToServer(ServerManager::getInstance()->getSwooleServer());
+    }
+
+    public function process()
+    {
+        $emailConfig = new \EasySwoole\Component\Process\Config();
+        $emailConfig->setProcessName('email-process');
+        Manager::getInstance()->addProcess(new EmailProcess());
     }
 }

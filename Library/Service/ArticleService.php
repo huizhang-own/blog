@@ -5,6 +5,7 @@ use EasySwoole\Component\Singleton;
 use EasySwoole\FastCache\Cache;
 use EasySwoole\Mysqli\QueryBuilder;
 use EasySwoole\WordsMatch\WordsMatchClient;
+use Library\Config\FastCacheKeys;
 use Parsedown;
 use Library\Model\ArticleInfoModel;
 use Library\Model\MenusModel;
@@ -112,6 +113,10 @@ class ArticleService
         $key = md5($clientIp.$uuid);
         if (empty(Cache::getInstance()->get($key)))
         {
+            Cache::getInstance()->enQueue(FastCacheKeys::QUEUE_EMAIL, [
+                'subject' => '有人访问了您的文章！',
+                'body' => $clientIp
+            ]);
             Cache::getInstance()->set($key, time(), 60*60);
             ArticleInfoModel::create()->update(
                 [
