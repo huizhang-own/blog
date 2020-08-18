@@ -51,8 +51,8 @@ class EmailProcess extends AbstractProcess {
                         go(function () use ($item){
                             $config = new MailerConfig();
                             $config->setServer('smtp.163.com');
-                            $config->setPort('25');
-                            $config->setSsl(false);
+                            $config->setPort(465);
+                            $config->setSsl(true);
                             $config->setUsername(IniConfig::getInstance()->getConf('blog', 'email.username'));
                             $config->setPassword(IniConfig::getInstance()->getConf('blog', 'email.password'));
                             $config->setMailFrom('tuzisir@163.com');
