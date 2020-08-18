@@ -22,10 +22,10 @@ class EmailProcess extends AbstractProcess {
     protected function run($arg)
     {
         go(function (){
-            Cache::getInstance()->enQueue(FastCacheKeys::QUEUE_EMAIL, [
-                'subject'=>123,
-                'body' => 456
-            ]);
+//            Cache::getInstance()->enQueue(FastCacheKeys::QUEUE_EMAIL, [
+//                'subject'=>123,
+//                'body' => 456
+//            ]);
             while (true)
             {
                 $size = Cache::getInstance()->queueSize(FastCacheKeys::QUEUE_EMAIL);
